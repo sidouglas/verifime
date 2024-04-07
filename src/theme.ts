@@ -1,20 +1,14 @@
 'use client';
-import { Roboto } from 'next/font/google';
 import { createTheme } from '@mui/material/styles';
+import { Roboto } from 'next/font/google';
 
 const roboto = Roboto({
-  weight: ['300', '400', '500', '700'],
-  subsets: ['latin'],
   display: 'swap',
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '700'],
 });
 
 const theme = createTheme({
-  palette: {
-    mode: 'light',
-  },
-  typography: {
-    fontFamily: roboto.style.fontFamily,
-  },
   components: {
     MuiAlert: {
       styleOverrides: {
@@ -25,6 +19,12 @@ const theme = createTheme({
         }),
       },
     },
+  },
+  palette: {
+    mode: 'light',
+  },
+  typography: {
+    fontFamily: roboto.style.fontFamily,
   },
 });
 
