@@ -139,7 +139,9 @@ export const Invoice = ({ id, onTotalChange }: InvoiceProps) => {
           total={total}
         />
         {lineItems.length ? (
-          <Typography variant="h3">Line items</Typography>
+          <Typography sx={{ marginTop: 2 }} variant="h6">
+            Line items
+          </Typography>
         ) : null}
         {lineItems?.map((item, index) => {
           return (
