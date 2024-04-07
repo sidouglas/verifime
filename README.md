@@ -25,8 +25,12 @@ npm run dev
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 ---
+### Deployment Url
+https://verifime-git-main-sidouglasnets-projects.vercel.app/
+
 
 ### Notes
+
 
 Took about a good 1/2 day to get to this stage. Given that the original requirement was <=3 hours:
 
