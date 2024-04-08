@@ -1,7 +1,7 @@
 import type dayjs from 'dayjs';
 import { z } from 'zod';
 
-import type { InvoiceTotal } from '@/components/Invoice/LineItem/';
+import type { InvoiceTotal } from '@/components/Invoice/LineItem';
 
 const responseSchema = z.object({
   amount: z.number(),

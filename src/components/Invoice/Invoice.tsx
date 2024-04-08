@@ -6,7 +6,7 @@ import { Box, Container, Typography } from '@mui/material';
 import { debounce } from '@/utils/debounce';
 import { uuid } from '@/utils/uuid';
 
-import { AddItemButton } from '../AddItemButton';
+import { ActionButton } from '../ActionButton';
 import type { Currency } from '../CurrencySelect';
 
 import type { PartialLineItemModel } from './LineItem/types';
@@ -139,7 +139,7 @@ export const Invoice = ({ id, onTotalChange }: InvoiceProps) => {
           total={total}
         />
         {lineItems.length ? (
-          <Typography sx={{ marginTop: 2 }} variant="h6">
+          <Typography sx={{ marginBottom: 1, marginTop: 1 }} variant="body1">
             Line items
           </Typography>
         ) : null}
@@ -159,7 +159,7 @@ export const Invoice = ({ id, onTotalChange }: InvoiceProps) => {
           );
         })}
       </Container>
-      <AddItemButton onClick={onAddLineItem}>Add Line Item</AddItemButton>
+      <ActionButton onClick={onAddLineItem}>Add Line Item</ActionButton>
     </Box>
   );
 };

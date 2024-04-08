@@ -11,6 +11,7 @@ export async function fetchCurrencies(): Promise<CurrencyData> {
       try {
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_CURRENCY_CONVERSION_URL}/currencies`,
+          { next: { revalidate: 3600 } },
         );
         if (!response.ok) {
           throw new Error(`Error fetching currencies: ${response.status}`);

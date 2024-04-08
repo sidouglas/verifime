@@ -1,14 +1,10 @@
 import React from 'react';
-import {
-  Box,
-  Button,
-  FormControl,
-  FormHelperText,
-  TextField,
-} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { Box, FormControl, FormHelperText, TextField } from '@mui/material';
 
 import type { LineItemProps } from './types';
 
+import { ActionButton } from '@/components/ActionButton';
 import { CurrencyInput } from '@/components/CurrencyInput';
 import { CurrencySelect } from '@/components/CurrencySelect';
 
@@ -66,20 +62,19 @@ export const LineItem = ({
         value={currency.code}
       />
 
-      <Button
-        color="warning"
+      <ActionButton
         onClick={() => {
           if (window.confirm('You sure you want to remove this line item?')) {
             onRemove(id);
           }
         }}
-        startIcon="🗑️"
+        startIcon={<DeleteIcon />}
         sx={{
           justifySelf: 'flex-end',
         }}
       >
         Remove
-      </Button>
+      </ActionButton>
     </Box>
   );
 };

@@ -1,9 +1,10 @@
 import React from 'react';
+import { Add } from '@mui/icons-material';
 import { Button, Container } from '@mui/material';
 
-import type { AddItemButtonProps } from './types';
+import type { ActionButtonProps } from './types';
 
-export const AddItemButton = ({ children, ...rest }: AddItemButtonProps) => {
+export const ActionButton = ({ children, sx, ...rest }: ActionButtonProps) => {
   return (
     <Container
       sx={{
@@ -14,10 +15,13 @@ export const AddItemButton = ({ children, ...rest }: AddItemButtonProps) => {
     >
       <Button
         color="primary"
-        startIcon="➕"
+        startIcon={<Add />}
         sx={{
           mb: 2,
+          textTransform: 'none',
+          ...sx,
         }}
+        variant="contained"
         {...rest}
       >
         {children}

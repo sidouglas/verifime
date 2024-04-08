@@ -1,3 +1,3 @@
 import type { ButtonProps } from '@mui/material';
 
-export type AddItemButtonProps = ButtonProps;
+export type ActionButtonProps = ButtonProps;
