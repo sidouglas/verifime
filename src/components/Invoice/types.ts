@@ -1,21 +1,10 @@
-import type dayjs from 'dayjs';
+export type { Currency } from '../CurrencySelect';
+export type { LineItemModel } from './LineItem';
+export type { Dayjs } from 'dayjs';
 
-import type { Currency } from '../CurrencySelect';
-
-import type { LineItemModel } from './LineItem';
-
-import type { Invoice } from '@/app/page';
+import type { Invoice } from '@/app/Invoice';
 
 export type InvoiceProps = {
-  currency?: Currency;
-  date?: dayjs.Dayjs;
-  id: string;
-  items?: LineItemModel[];
-  onTotalChange: (id: string, invoice: Invoice) => void;
-};
-
-export type InvoiceState = {
-  currency: NotUndefined<InvoiceProps['currency']>;
-  date: NotUndefined<InvoiceProps['date']>;
-  items: NotUndefined<InvoiceProps['items']>;
+  invoice: Partial<Invoice> & { id: string };
+  onTotalChange: (invoice: Invoice) => void;
 };

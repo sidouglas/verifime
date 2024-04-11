@@ -6,43 +6,36 @@ import { Box, Container, Typography } from '@mui/material';
 import { debounce } from '@/utils/debounce';
 import { uuid } from '@/utils/uuid';
 
-import { ActionButton } from '../ActionButton';
-import type { Currency } from '../CurrencySelect';
-
-import type { PartialLineItemModel } from './LineItem/types';
 import { MemoHeader } from './Header';
+import type { PartialLineItemModel } from './LineItem';
 import { LineItem } from './LineItem';
-import type {
-  InvoiceProps,
-  InvoiceProps as Props,
-  InvoiceState as State,
-} from './types';
+import type { Currency, Dayjs, InvoiceProps, LineItemModel } from './types';
 import { calculateLineTotals, updateLineItems } from './utils';
 
 import { convertCurrencies } from '@/actions/convertCurrency';
-import { MIN_PRINTABLE_AMOUNT, TODAY } from '@/constants';
+import { ActionButton } from '@/components/ActionButton';
+import { DEFAULT_CURRENCY, MIN_PRINTABLE_AMOUNT, TODAY } from '@/constants';
 
-export const Invoice = ({ id, onTotalChange }: InvoiceProps) => {
-  console.log('Invoice rendered', id);
-  const [baseCurrency, setBaseCurrency] = useState<State['currency']>({
-    code: 'NZD',
-    name: 'New Zealand Dollar',
-  });
-  const [invoiceDate, setInvoiceDate] = useState<State['date']>(TODAY);
-  const [lineItems, setLineItems] = useState<State['items']>([]);
-  const [total, setTotal] = useState<number>(0);
+export const Invoice = ({ invoice, onTotalChange }: InvoiceProps) => {
+  const id = invoice.id;
+  const [baseCurrency, setBaseCurrency] = useState<Currency>(
+    invoice?.currency ?? DEFAULT_CURRENCY,
+  );
+  const [invoiceDate, setInvoiceDate] = useState<Dayjs>(invoice?.date ?? TODAY);
+  const [lines, setLines] = useState<LineItemModel[]>(invoice?.lines ?? []);
+  const [total, setTotal] = useState<number>(invoice?.total ?? 0);
 
   const onBaseCurrencyChange = useCallback((currency: Currency) => {
     setBaseCurrency(currency);
   }, []);
 
-  const onSetInvoiceDate = useCallback((newDate: Props['date'] | null) => {
+  const onSetInvoiceDate = useCallback((newDate: Dayjs | null) => {
     if (!newDate) return;
     setInvoiceDate(newDate);
   }, []);
 
   const onAddLineItem = useCallback(() => {
-    setLineItems(prevItems => {
+    setLines(prevItems => {
       return [
         ...prevItems,
         {
@@ -57,42 +50,43 @@ export const Invoice = ({ id, onTotalChange }: InvoiceProps) => {
         },
       ];
     });
-  }, [setLineItems]);
+  }, [setLines]);
 
   const updateTotal = useCallback(async () => {
-    const lineTotals = calculateLineTotals(lineItems);
+    const lineTotals = calculateLineTotals(lines);
     const total = await convertCurrencies(lineTotals, {
       date: invoiceDate,
       to: baseCurrency.code,
     });
     setTotal(total);
-    onTotalChange(id, {
+    onTotalChange({
       currency: baseCurrency,
       date: invoiceDate,
-      lineItems,
+      id,
       lineTotals,
+      lines,
       total,
     });
-  }, [baseCurrency, id, invoiceDate, lineItems, onTotalChange]);
+  }, [baseCurrency, id, invoiceDate, lines, onTotalChange]);
 
   const handleRemoveLineItem = useCallback((id: string) => {
-    setLineItems(prevItems => {
+    setLines(prevItems => {
       return prevItems.filter(item => item.id !== id);
     });
   }, []);
 
   const isValid = useMemo(
     () =>
-      lineItems.length > 0 &&
+      lines.length > 0 &&
       baseCurrency &&
-      lineItems.every(
+      lines.every(
         item =>
           item.error === '' &&
           item.description &&
           item.amount !== MIN_PRINTABLE_AMOUNT &&
           item.currency.code,
       ),
-    [lineItems, baseCurrency],
+    [lines, baseCurrency],
   );
 
   const debouncedUpdateTotal = useMemo(
@@ -102,7 +96,7 @@ export const Invoice = ({ id, onTotalChange }: InvoiceProps) => {
 
   const handleLineItemUpdate = useCallback(
     (updateValue: PartialLineItemModel) => {
-      setLineItems(previous => {
+      setLines(previous => {
         return updateLineItems(previous, updateValue);
       });
     },
@@ -110,16 +104,10 @@ export const Invoice = ({ id, onTotalChange }: InvoiceProps) => {
   );
 
   useEffect(() => {
-    if (isValid || lineItems.length === 0) {
+    if (isValid || lines.length === 0) {
       debouncedUpdateTotal();
     }
-  }, [
-    debouncedUpdateTotal,
-    lineItems.length,
-    baseCurrency,
-    invoiceDate,
-    isValid,
-  ]);
+  }, [debouncedUpdateTotal, lines.length, baseCurrency, invoiceDate, isValid]);
 
   return (
     <Box
@@ -129,7 +117,7 @@ export const Invoice = ({ id, onTotalChange }: InvoiceProps) => {
         width: '100%',
       }}
     >
-      <Container sx={{ pt: 4 }}>
+      <Container sx={{ padding: 4 }}>
         <MemoHeader
           baseCurrency={baseCurrency}
           id={id}
@@ -138,12 +126,12 @@ export const Invoice = ({ id, onTotalChange }: InvoiceProps) => {
           onSetInvoiceDate={onSetInvoiceDate}
           total={total}
         />
-        {lineItems.length ? (
+        {lines.length ? (
           <Typography sx={{ marginBottom: 1, marginTop: 1 }} variant="body1">
             Line items
           </Typography>
         ) : null}
-        {lineItems?.map((item, index) => {
+        {lines?.map(item => {
           return (
             <LineItem
               key={item.id}
@@ -154,12 +142,13 @@ export const Invoice = ({ id, onTotalChange }: InvoiceProps) => {
               id={item.id}
               onRemove={handleRemoveLineItem}
               onUpdate={handleLineItemUpdate}
-              sx={{ mb: index === lineItems.length - 1 ? 0 : 2 }}
             />
           );
         })}
+        <ActionButton onClick={onAddLineItem} sx={{ marginLeft: 'auto' }}>
+          Add Line Item
+        </ActionButton>
       </Container>
-      <ActionButton onClick={onAddLineItem}>Add Line Item</ActionButton>
     </Box>
   );
 };

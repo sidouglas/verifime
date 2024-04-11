@@ -1,2 +1,2 @@
 export { LineItem } from './LineItem';
-export type { InvoiceTotal, LineItemModel, LineItemProps } from './types';
+export type * from './types';

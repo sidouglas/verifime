@@ -11,19 +11,9 @@ export const updateLineItems = (
     ...findItemById(partialLineItem.id, items),
     ...partialLineItem,
   } as LineItemModel | undefined;
-
   if (!newItem) return items;
-
-  // Check if a duplicate exists based on amount, description, and currency
-  const hasDuplicate =
-    items.length > 1 &&
-    items.some(
-      (item: LineItemModel) =>
-        item.id !== newItem.id &&
-        item.amount === newItem.amount &&
-        item.description === newItem.description &&
-        item.currency === newItem.currency,
-    );
+  const isLineItemUnique = checkLineItemModelUnique();
+  const hasDuplicate = isLineItemUnique(newItem);
   newItem.error = hasDuplicate ? 'Line item must be unique' : '';
 
   // now update the model with the new item
@@ -65,4 +55,17 @@ export const calculateLineTotals = (items: LineItemModel[]): InvoiceTotal[] => {
       amount: Number(item.amount.toFixed(4)),
       currency: item.currency,
     }));
+};
+
+const checkLineItemModelUnique = () => {
+  const set = new Set();
+
+  return function isLineItemUnique(lineItem: LineItemModel) {
+    const serializedLineItem = JSON.stringify(lineItem);
+    if (set.has(serializedLineItem)) {
+      return true;
+    }
+    set.add(serializedLineItem);
+    return false;
+  };
 };

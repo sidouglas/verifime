@@ -1,11 +1,14 @@
-import React, { type FocusEvent, useCallback, useMemo, useState } from 'react';
-import { FormControl, FormHelperText, TextField } from '@mui/material';
+import React, { useCallback, useMemo, useState } from 'react';
+import { FormControl, TextField } from '@mui/material';
+
+import { roundNumber } from '@/utils/uuid';
+
+import { TextFieldError } from '../TextFieldError';
 
 import type { CurrencyInputProps } from './types';
 
 import { MIN_PRINTABLE_AMOUNT } from '@/constants';
-
-const { abs, ceil } = Math;
+import { useDebounce } from '@/hooks/useDebounce';
 
 export const CurrencyInput = ({
   errorText = '',
@@ -15,20 +18,25 @@ export const CurrencyInput = ({
   value = '',
 }: CurrencyInputProps) => {
   const [hasInternalError, setInternalError] = useState(false);
+  const [currency, setCurrency] = useState<string>(value);
 
-  const handleBlur = useCallback(
-    (event: FocusEvent<HTMLInputElement>) => {
-      // get around locale issues with commas
-      let value: number | string = event.target.value.replace(',', '.');
-      // round the value to 2 decimal places and ensure its unsigned
-      value = Number(value)
-        ? (ceil(abs(Number(value)) * 100) / 100).toFixed(2)
-        : MIN_PRINTABLE_AMOUNT;
-      setInternalError(value === MIN_PRINTABLE_AMOUNT);
-      onAmountUpdate(id, value);
+  const debouncedAmountUpdate = useDebounce(() => validate(), 1000);
+
+  const handleChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setCurrency(event.target.value);
+      debouncedAmountUpdate();
     },
-    [id, onAmountUpdate],
+    [debouncedAmountUpdate],
   );
+
+  const validate = useCallback(() => {
+    const value = roundNumber(currency, 2);
+    const formattedValue = value ? value.toFixed(2) : MIN_PRINTABLE_AMOUNT;
+    setInternalError(formattedValue === MIN_PRINTABLE_AMOUNT);
+    setCurrency(formattedValue);
+    onAmountUpdate(id, formattedValue);
+  }, [currency, id, onAmountUpdate]);
 
   const internalErrorText = useMemo(
     () => (hasInternalError ? 'Amount must be greater than 0' : ''),
@@ -41,17 +49,10 @@ export const CurrencyInput = ({
         error={hasError || hasInternalError}
         id={`amount-${id}`}
         label="Amount"
-        onBlur={handleBlur}
-        onChange={event => {
-          // allow everything through, validate it on blur - fiddly to validate
-          // while user is typing.
-          onAmountUpdate(id, event.target.value);
-        }}
-        value={value}
+        onChange={handleChange}
+        value={currency}
       />
-      {hasError || hasInternalError ? (
-        <FormHelperText error>{errorText || internalErrorText}</FormHelperText>
-      ) : null}
+      <TextFieldError error={errorText || internalErrorText} />
     </FormControl>
   );
 };

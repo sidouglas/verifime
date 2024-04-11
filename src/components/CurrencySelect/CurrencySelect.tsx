@@ -1,16 +1,17 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
 import {
   FormControl,
-  FormHelperText,
   InputLabel,
   MenuItem,
   Select,
   type SelectChangeEvent,
 } from '@mui/material';
 
+import { TextFieldError } from '../TextFieldError';
+
 import type { CurrencySelectProps } from './types';
 
-import { type CurrencyData, fetchCurrencies } from '@/actions/fetchCurrencies';
+import { CURRENCIES } from '@/constants';
 
 export const CurrencySelect = (props: CurrencySelectProps) => {
   const {
@@ -19,29 +20,19 @@ export const CurrencySelect = (props: CurrencySelectProps) => {
     errorText = '',
     label = 'Base Currency',
     labelId = `${id}-label`,
-    value = '',
     onChange,
     ...rest
   } = props;
-  const [currencies, setCurrencies] = useState<CurrencyData | null>(null);
-
-  useEffect(() => {
-    const fetchCurrenciesData = async () => {
-      const currenciesData = await fetchCurrencies();
-      setCurrencies(currenciesData);
-    };
-
-    fetchCurrenciesData();
-  }, []);
 
   const handleOnChange = useCallback(
     (event: SelectChangeEvent<unknown>) => {
+      const code = event.target.value as keyof typeof CURRENCIES;
       onChange({
-        code: event.target.value as string,
-        name: currencies ? currencies[event.target.value as string] : '',
+        code,
+        name: CURRENCIES[code],
       });
     },
-    [currencies, onChange],
+    [onChange],
   );
   return (
     <>
@@ -53,17 +44,15 @@ export const CurrencySelect = (props: CurrencySelectProps) => {
           label={label}
           labelId={labelId}
           onChange={handleOnChange}
-          value={currencies ? value : ''}
           {...rest}
         >
-          {currencies &&
-            Object.entries(currencies).map(([code, countryText]) => (
-              <MenuItem key={code} value={code}>
-                {countryText}
-              </MenuItem>
-            ))}
+          {Object.entries(CURRENCIES).map(([code, countryText]) => (
+            <MenuItem key={code} value={code}>
+              {countryText}
+            </MenuItem>
+          ))}
         </Select>
-        {hasError ? <FormHelperText error>{errorText}</FormHelperText> : null}
+        <TextFieldError error={errorText} />
       </FormControl>
     </>
   );
