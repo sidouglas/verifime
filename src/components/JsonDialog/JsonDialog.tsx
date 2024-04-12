@@ -37,7 +37,7 @@ export const JsonDialog = ({
   const importJsonRef = useRef<HTMLInputElement | null>(null);
   const stateToExportJson: JsonImportExport | null = useMemo(() => {
     const invoices = Object.values(state).filter(Boolean);
-    if (invoices.length === 0) return null;
+    if (invoices.length === 0 || modalOpenType === 'close') return null;
     const invoiceExport: JsonImportExport = { invoices: [] };
     for (const invoice of invoices) {
       if (!invoice) return null;
@@ -52,7 +52,7 @@ export const JsonDialog = ({
       });
     }
     return invoiceExport;
-  }, [state]);
+  }, [state, modalOpenType]);
 
   const isExport = modalOpenType === 'export';
 
@@ -79,7 +79,7 @@ export const JsonDialog = ({
           const lines = invoice.lines.map(line => {
             const code = line.currency as keyof typeof CURRENCIES;
             return {
-              amount: line.amount.toFixed(4),
+              amount: line.amount.toFixed(2),
               currency: { code, name: CURRENCIES[code] },
               description: line.description,
               error: '',

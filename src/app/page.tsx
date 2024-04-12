@@ -1,19 +1,17 @@
 'use client';
 import { useCallback, useId, useMemo, useState } from 'react';
-import FileCopyIcon from '@mui/icons-material/FileCopy';
-import { Grid, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import type dayjs from 'dayjs';
 
 import { isObjectEmpty, uuid } from '@/utils/uuid';
 
-import { ActionButton } from '../components/ActionButton';
-
 import type { Currency } from '@/components/CurrencySelect';
 import type { LineItemModel } from '@/components/Invoice';
 import { Invoice } from '@/components/Invoice';
 import type { InvoiceTotal } from '@/components/Invoice/LineItem';
+import { MemoedInvoiceControls } from '@/components/InvoiceControls/InvoiceControls';
 import { JsonDialog } from '@/components/JsonDialog';
 import { TotalsBox } from '@/components/TotalsBox';
 
@@ -88,7 +86,7 @@ export default function Index() {
     const id = uuid();
     setState(prevState => ({
       ...prevState,
-      [id]: {} as Invoice,
+      [id]: undefined,
     }));
   }, [setState]);
 
@@ -118,29 +116,12 @@ export default function Index() {
               onTotalChange={handleTotalChange}
             />
           ))}
-          <Grid container spacing={2}>
-            <Grid item>
-              <ActionButton
-                onClick={() => setModalOpenType('import')}
-                startIcon={<FileCopyIcon />}
-              >
-                Import
-              </ActionButton>
-            </Grid>
-            <Grid item>
-              <ActionButton
-                onClick={() => setModalOpenType('export')}
-                startIcon={<FileCopyIcon />}
-              >
-                Export
-              </ActionButton>
-            </Grid>
-            <Grid item ml="auto">
-              <ActionButton onClick={handleAddInvoice} sx={{ ml: 'auto' }}>
-                Add Invoice
-              </ActionButton>
-            </Grid>
-          </Grid>
+
+          <MemoedInvoiceControls
+            handleAddInvoice={handleAddInvoice}
+            setModalOpenType={setModalOpenType}
+          />
+
           {invoiceTotals.length ? (
             <TotalsBox invoiceTotals={invoiceTotals} lineTotals={lineTotals} />
           ) : null}
