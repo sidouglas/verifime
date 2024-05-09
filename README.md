@@ -32,7 +32,7 @@ https://verifime-git-main-sidouglasnets-projects.vercel.app/
 
 ### Requirements
 
-https://verifime-git-main-sidouglasnets-projects.vercel.app/verifime-test.pdf
+[Requirements Document](https://github.com/sidouglas/verifime/blob/main/verifime-test.pdf)
 
 ### Notes
 
